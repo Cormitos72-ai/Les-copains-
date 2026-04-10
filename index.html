@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Barathon Cusco</title>
+<style>
+  :root {
+    --bg:       #fdf6ec;
+    --card:     #ffffff;
+    --ink:      #1a1208;
+    --ink2:     #3d2e18;
+    --muted:    #8a7560;
+    --border:   #e2cfb8;
+    --amber:    #c97a06;
+    --amber-bg: #fff3d6;
+    --orange:   #d94f0a;
+    --green:    #15803d;
+    --green-bg: #d1fae5;
+    --shadow:   rgba(26,18,8,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+/* ── SCREENS ── */
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ── SHARED ── */
+.logo { font-size: 2.8rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1; color: var(–ink); }
+.logo span { color: var(–amber); }
+.pill { display: inline-flex; align-items: center; gap: 5px; background: var(–amber); border-radius: 6px; padding: 4px 11px; font-size: 0.68rem; font-weight: 800; color: #fff; text-transform: uppercase; letter-spacing: 0.08em; width: fit-content; }
+.sec-label { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: var(–muted); margin-bottom: 10px; }
+.btn-primary { background: var(–ink); color: #fff; border: none; border-radius: 14px; padding: 17px; font-family: inherit; font-weight: 900; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; width: 100%; box-shadow: 0 4px 16px var(–shadow); transition: transform .1s; }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.3; }
+.btn-amber { background: var(–amber); color: var(–ink); border: none; border-radius: 14px; padding: 17px; font-family: inherit; font-weight: 900; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; width: 100%; box-shadow: 0 4px 14px rgba(201,122,6,0.35); transition: transform .1s; }
+.btn-amber:active { transform: scale(0.98); }
+.btn-outline { background: transparent; color: var(–ink2); border: 2px solid var(–border); border-radius: 14px; padding: 14px; font-family: inherit; font-weight: 800; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; width: 100%; }
+.back-link { font-size: 0.85rem; font-weight: 800; color: var(–amber); cursor: pointer; display: inline-block; margin-bottom: 16px; }
+
+@keyframes sIn { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:translateX(0); } }
+@keyframes cardIn { from { opacity:0; transform:scale(0.94) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
+@keyframes bIn { from { transform:scale(0) rotate(-15deg); } to { transform:scale(1) rotate(0); } }
+@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+@keyframes pulse { 0%,100%{box-shadow:0 0 0 4px rgba(201,122,6,0.2);} 50%{box-shadow:0 0 0 9px rgba(201,122,6,0.06);} }
+@keyframes cFall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1;} 100%{transform:translateY(110vh) rotate(720deg);opacity:0;} }
+
+/* ════════════════════════════
+SETUP — JOUEURS
+════════════════════════════ */
+#screen-setup { padding: 36px 22px 44px; gap: 0; }
+#screen-setup .logo { margin-bottom: 4px; }
+#screen-setup .pill { margin-bottom: 32px; }
+
+.players-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.player-row {
+display: flex; align-items: center; gap: 10px;
+background: var(–card); border: 2px solid var(–border);
+border-radius: 13px; padding: 12px 14px;
+animation: sIn 0.2s ease both;
+}
+.player-row.filled { border-color: var(–amber); }
+.player-num { font-size: 0.8rem; font-weight: 900; color: var(–amber); min-width: 22px; }
+.player-row input {
+flex: 1; background: transparent; border: none; outline: none;
+color: var(–ink); font-family: inherit; font-size: 0.95rem; font-weight: 700;
+}
+.player-row input::placeholder { color: var(–muted); font-weight: 500; }
+.del-btn { background: none; border: none; color: var(–muted); cursor: pointer; font-size: 1rem; padding: 4px; line-height: 1; }
+.add-player-btn {
+display: flex; align-items: center; gap: 8px;
+background: none; border: 2px dashed var(–border); border-radius: 12px;
+padding: 11px 16px; color: var(–muted);
+font-family: inherit; font-size: 0.88rem; font-weight: 700;
+cursor: pointer; width: 100%; margin-bottom: 28px;
+}
+
+/* ════════════════════════════
+MARATHON
+════════════════════════════ */
+#screen-marathon { padding-bottom: 48px; }
+
+.m-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 22px 0; margin-bottom: 18px; }
+.m-logo { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.03em; color: var(–ink); }
+.m-logo span { color: var(–amber); }
+.m-timer { font-size: 0.85rem; font-weight: 800; font-variant-numeric: tabular-nums; color: var(–ink2); background: var(–card); padding: 6px 12px; border-radius: 8px; border: 2px solid var(–border); }
+
+.m-progress { padding: 0 22px 18px; }
+.m-prog-info { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; }
+.m-prog-label { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(–muted); }
+.m-prog-count { font-size: 0.9rem; font-weight: 900; color: var(–ink2); }
+.m-prog-count em { color: var(–amber); font-style: normal; }
+.m-prog-track { height: 7px; background: var(–border); border-radius: 99px; overflow: hidden; }
+.m-prog-fill { height: 100%; background: linear-gradient(90deg, var(–orange), var(–amber)); border-radius: 99px; transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+
+/* stop card */
+.m-current { padding: 0 22px 18px; }
+.m-current-label { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(–amber); margin-bottom: 8px; }
+.m-card { background: var(–ink); border-radius: 22px; padding: 20px; position: relative; overflow: hidden; box-shadow: 0 8px 32px rgba(26,18,8,0.22); animation: cardIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+.m-card::after { content:’’; position:absolute; top:-20px; right:-20px; width:100px; height:100px; background:var(–amber); opacity:0.13; border-radius:50%; }
+.m-card-bg-num { position:absolute; bottom:-4px; right:14px; font-size:5rem; font-weight:900; line-height:1; color:#fff; opacity:0.07; user-select:none; }
+.m-bar-name { font-size:1.6rem; font-weight:900; line-height:1.1; letter-spacing:-0.02em; color:#fff; display:block; text-decoration:none; padding-right:40px; margin-bottom:4px; }
+.m-gps-hint { font-size:0.7rem; font-weight:700; color:var(–amber); margin-bottom:14px; }
+.m-checkin { display:flex; align-items:center; justify-content:center; gap:8px; background:var(–amber); color:var(–ink); border:none; border-radius:12px; padding:14px; font-family:inherit; font-weight:900; font-size:0.92rem; text-transform:uppercase; letter-spacing:0.04em; cursor:pointer; width:100%; box-shadow:0 4px 14px rgba(201,122,6,0.4); }
+
+/* ── SCORES ── */
+.m-scores { padding: 0 22px 16px; }
+.scores-list { display: flex; flex-direction: column; gap: 7px; }
+.score-row {
+display: flex; align-items: center; gap: 11px;
+background: var(–card); border: 2px solid var(–border);
+border-radius: 13px; padding: 10px 14px;
+}
+.score-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 900; color: #fff; flex-shrink: 0; }
+.score-name { flex: 1; font-weight: 800; font-size: 0.9rem; color: var(–ink); }
+.score-pts { font-size: 1.05rem; font-weight: 900; color: var(–amber); white-space: nowrap; }
+.score-pts small { font-size: 0.62rem; font-weight: 700; color: var(–muted); }
+
+/* ── DRINKS PANEL ── */
+.m-drinks { padding: 0 22px 18px; }
+
+/* player tabs */
+.player-tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+.player-tabs::-webkit-scrollbar { display: none; }
+.ptab {
+flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+padding: 8px 14px; border-radius: 99px; border: 2px solid var(–border);
+background: var(–card); cursor: pointer;
+font-family: inherit; font-weight: 800; font-size: 0.82rem; color: var(–muted);
+transition: all .15s;
+}
+.ptab.active { border-color: var(–amber); color: var(–ink); background: var(–amber-bg); }
+.ptab-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+.drinks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.drink-btn {
+display: flex; flex-direction: column; align-items: center; gap: 4px;
+background: var(–card); border: 2px solid var(–border); border-radius: 14px;
+padding: 14px 8px; cursor: pointer; font-family: inherit; transition: all .12s;
+}
+.drink-btn:active { transform: scale(0.94); border-color: var(–amber); background: var(–amber-bg); }
+.drink-emoji { font-size: 1.6rem; }
+.drink-name { font-size: 0.72rem; font-weight: 800; color: var(–ink); text-transform: uppercase; letter-spacing: 0.06em; }
+.drink-pts { font-size: 0.68rem; font-weight: 700; color: var(–amber); }
+
+/* ── TIMELINE ── */
+.m-tl-wrap { padding: 0 22px; }
+.m-tl-label { font-size: 0.6rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: var(–muted); margin-bottom: 14px; }
+.m-timeline { position: relative; padding-left: 34px; }
+.m-timeline::before { content:’’; position:absolute; left:11px; top:8px; bottom:8px; width:2px; background:var(–border); border-radius:99px; }
+.m-tl-filled { position:absolute; left:11px; top:8px; width:2px; background:linear-gradient(180deg,var(–orange),var(–amber)); border-radius:99px; transition:height 0.6s cubic-bezier(0.34,1.56,0.64,1); z-index:1; }
+.m-tl-item { position:relative; margin-bottom:10px; display:flex; align-items:center; }
+.m-tl-dot { position:absolute; left:-26px; width:14px; height:14px; border-radius:50%; border:3px solid var(–border); background:var(–bg); z-index:2; transition:all .3s ease; }
+.m-tl-item.done   .m-tl-dot { background:var(–green); border-color:var(–green); box-shadow:0 0 0 4px rgba(21,128,61,0.15); }
+.m-tl-item.active .m-tl-dot { background:var(–amber); border-color:var(–amber); box-shadow:0 0 0 4px rgba(201,122,6,0.2); animation:pulse 2s infinite; }
+.m-tl-item.locked .m-tl-dot { background:var(–border); border-color:var(–border); }
+.m-tl-content { flex:1; padding:10px 14px; border-radius:13px; border:2px solid transparent; transition:all .3s ease; }
+.m-tl-item.done   .m-tl-content { background:var(–green-bg); border-color:#6ee7b7; }
+.m-tl-item.active .m-tl-content { background:var(–card); border-color:var(–amber); box-shadow:0 2px 12px rgba(201,122,6,0.12); }
+.m-tl-item.locked .m-tl-content { background:#f5efe6; border-color:var(–border); opacity:.5; }
+.m-tl-num { font-size:.6rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin-bottom:2px; }
+.m-tl-item.done   .m-tl-num { color:var(–green); }
+.m-tl-item.active .m-tl-num { color:var(–amber); }
+.m-tl-item.locked .m-tl-num { color:var(–muted); }
+.m-tl-name { font-size:.92rem; font-weight:800; text-decoration:none; display:block; }
+.m-tl-item.done   .m-tl-name { color:var(–green); text-decoration:line-through; text-decoration-color:#6ee7b7; }
+.m-tl-item.active .m-tl-name { color:var(–ink); }
+.m-tl-item.locked .m-tl-name { color:var(–muted); pointer-events:none; }
+
+/* ════════════════════════════
+CELEBRATION
+════════════════════════════ */
+#screen-cel {
+position: fixed; inset: 0; background: rgba(253,246,236,0.97);
+z-index: 100; display: none; flex-direction: column;
+align-items: center; justify-content: center;
+text-align: center; padding: 36px 28px;
+animation: fadeIn .3s ease;
+}
+#screen-cel.active { display: flex; }
+.cel-emoji { font-size: 3.5rem; margin-bottom: 12px; animation: bIn .5s cubic-bezier(0.34,1.56,0.64,1); }
+.cel-title { font-size: 2rem; font-weight: 900; letter-spacing: -0.03em; color: var(–ink); margin-bottom: 4px; }
+.cel-title span { color: var(–amber); }
+.cel-next-label { font-size: .6rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(–muted); margin-bottom: 8px; margin-top: 20px; }
+.cel-next-name { font-size: 1.2rem; font-weight: 900; color: var(–ink); padding: 14px 20px; background: var(–card); border-radius: 14px; border: 2px solid var(–amber); width: 100%; text-decoration: none; display: block; margin-bottom: 20px; }
+
+/* ════════════════════════════
+PODIUM
+════════════════════════════ */
+#screen-podium { padding: 36px 22px 44px; gap: 14px; }
+.podium-title { font-size: 2.4rem; font-weight: 900; letter-spacing: -0.04em; color: var(–ink); line-height: 1; }
+.podium-title span { color: var(–amber); }
+.podium-list { display: flex; flex-direction: column; gap: 10px; }
+.podium-row { display: flex; align-items: center; gap: 12px; background: var(–card); border: 2px solid var(–border); border-radius: 16px; padding: 14px 16px; }
+.podium-row.gold   { background: #fff8e6; border-color: var(–amber); }
+.podium-row.silver { background: #f4f4f6; border-color: #9ca3af; }
+.podium-row.bronze { background: #fff4ef; border-color: #c2693a; }
+.podium-rank { font-size: 1.4rem; min-width: 32px; text-align: center; }
+.podium-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; font-weight: 900; color: #fff; flex-shrink: 0; }
+.podium-name { flex: 1; font-weight: 800; font-size: 1rem; color: var(–ink); }
+.podium-pts { font-size: 1.4rem; font-weight: 900; color: var(–amber); }
+.podium-pts small { font-size: 0.62rem; color: var(–muted); font-weight: 700; }
+.podium-drinks { font-size: 0.7rem; font-weight: 700; color: var(–muted); margin-top: 2px; }
+.fin-time { font-weight: 800; font-size: .88rem; color: var(–muted); text-align: center; }
+.fin-time strong { color: var(–ink); }
+
+/* ── TOAST ── */
+.toast { position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-80px); background:var(–ink); color:#fff; padding:10px 20px; border-radius:99px; font-weight:800; font-size:.88rem; z-index:300; transition:transform .3s cubic-bezier(0.34,1.56,0.64,1); white-space:nowrap; pointer-events:none; }
+.toast.show { transform:translateX(-50%) translateY(0); }
+
+.confetti-piece { position:fixed; width:8px; height:8px; border-radius:2px; animation:cFall linear forwards; pointer-events:none; z-index:200; }
+</style>
+
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- ════════════ SETUP JOUEURS ════════════ -->
+
+<div id="screen-setup" class="screen active">
+  <div class="logo">BARA<span>THON</span></div>
+  <div class="pill">📍 Cusco, Pérou</div>
+
+  <div style="margin-top:28px">
+    <div class="sec-label">Qui participe ce soir ?</div>
+    <div class="players-list" id="playersList"></div>
+    <button class="add-player-btn" onclick="addPlayer()">＋ &nbsp;Ajouter un joueur</button>
+  </div>
+
+  <button class="btn-amber" id="startBtn" onclick="startGame()" disabled style="margin-top:auto">
+    LANCER LE BARATHON →
+  </button>
+</div>
+
+<!-- ════════════ MARATHON ════════════ -->
+
+<div id="screen-marathon" class="screen">
+  <div class="m-header">
+    <div class="m-logo">BARA<span>THON</span></div>
+    <div class="m-timer" id="mTimer">00:00</div>
+  </div>
+
+  <div class="m-progress">
+    <div class="m-prog-info">
+      <span class="m-prog-label">Progression</span>
+      <span class="m-prog-count" id="mProgCount"><em>0</em> / 7</span>
+    </div>
+    <div class="m-prog-track"><div class="m-prog-fill" id="mProgFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="m-current">
+    <div class="m-current-label">📍 Stop actuel</div>
+    <div class="m-card" id="mCard">
+      <div class="m-card-bg-num" id="mCardNum">1</div>
+      <a class="m-bar-name" id="mBarName" href="#">—</a>
+      <div class="m-gps-hint">🗺️ Appuie sur le nom pour ouvrir Maps</div>
+      <button class="m-checkin" onclick="checkIn()">✓ Check-in — bar suivant</button>
+    </div>
+  </div>
+
+  <!-- CLASSEMENT -->
+
+  <div class="m-scores">
+    <div class="sec-label">Classement en direct</div>
+    <div class="scores-list" id="scoresList"></div>
+  </div>
+
+  <!-- BOISSONS -->
+
+  <div class="m-drinks">
+    <div class="sec-label">Ajouter une conso</div>
+    <div class="player-tabs" id="playerTabs"></div>
+    <div class="drinks-grid">
+      <button class="drink-btn" onclick="addDrink('pinte',3)">
+        <span class="drink-emoji">🍺</span>
+        <span class="drink-name">Pinte</span>
+        <span class="drink-pts">+3 pts</span>
+      </button>
+      <button class="drink-btn" onclick="addDrink('shot',5)">
+        <span class="drink-emoji">🥃</span>
+        <span class="drink-name">Shot</span>
+        <span class="drink-pts">+5 pts</span>
+      </button>
+      <button class="drink-btn" onclick="addDrink('cocktail',8)">
+        <span class="drink-emoji">🍹</span>
+        <span class="drink-name">Cocktail</span>
+        <span class="drink-pts">+8 pts</span>
+      </button>
+      <button class="drink-btn" onclick="addDrink('afonnage',10)">
+        <span class="drink-emoji">💀</span>
+        <span class="drink-name">Afonnage</span>
+        <span class="drink-pts">+10 pts</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TRACÉ -->
+
+  <div class="m-tl-wrap">
+    <div class="m-tl-label">Tracé du barathon</div>
+    <div class="m-timeline" id="mTimeline">
+      <div class="m-tl-filled" id="mTlFilled" style="height:0"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ CELEBRATION ════════════ -->
+
+<div id="screen-cel">
+  <div class="cel-emoji" id="celEmoji">🍻</div>
+  <div class="cel-title">CHECK-IN <span>VALIDÉ !</span></div>
+  <div class="cel-next-label">Prochain stop — appuie pour Maps</div>
+  <a class="cel-next-name" id="celNextName" href="#">—</a>
+  <button class="btn-primary" onclick="closeCel()">ON Y VA →</button>
+</div>
+
+<!-- ════════════ PODIUM ════════════ -->
+
+<div id="screen-podium" class="screen">
+  <div class="podium-title">PODIUM<br><span>FINAL 🏆</span></div>
+  <div class="fin-time" id="finTime">Durée : <strong>—</strong></div>
+  <div class="sec-label">Classement des guerriers</div>
+  <div class="podium-list" id="podiumList"></div>
+  <button class="btn-outline" onclick="restart()" style="margin-top:auto">Recommencer</button>
+</div>
+
+<script>
+/* ── BARS (coords Google Maps vérifiées) ── */
+const BARS = [
+  { name: "ViewHouse Resto Bar", lat: -13.513860, lng: -71.973842 },
+  { name: "Black Cat Bar",       lat: -13.515493, lng: -71.979514 },
+  { name: "Molly's Irish Bar",   lat: -13.516476, lng: -71.977106 },
+  { name: "Paddy's Irish Pub",   lat: -13.516697, lng: -71.977540 },
+  { name: "7 Vidas Taproom",     lat: -13.516460, lng: -71.975676 },
+  { name: "Ukukus Club",         lat: -13.516160, lng: -71.979768 },
+  { name: "Chango Club Cuzco",   lat: -13.515269, lng: -71.980293 },
+];
+
+const COLORS = ['#e63946','#2a9d8f','#e76f51','#457b9d','#8338ec','#f77f00','#06d6a0','#d62828'];
+
+/* ── STATE ── */
+let players    = [];  // [{name, points, drinks:{pinte,shot,cocktail,afonnage}}]
+let activePlayer = 0; // index du joueur sélectionné dans les tabs
+let currentBar = 0;
+let startTime  = null;
+let timerInt   = null;
+let playerInputs = []; // valeurs temporaires saisies
+
+/* ════════════════════════════
+   SETUP
+════════════════════════════ */
+window.onload = () => {
+  // 3 champs par défaut
+  playerInputs = ['','',''];
+  renderPlayerInputs();
+};
+
+function addPlayer() {
+  if (playerInputs.length >= 8) { showToast('Maximum 8 joueurs'); return; }
+  playerInputs.push('');
+  renderPlayerInputs();
+}
+
+function renderPlayerInputs() {
+  const list = document.getElementById('playersList');
+  list.innerHTML = '';
+  playerInputs.forEach((val, i) => {
+    const row = document.createElement('div');
+    row.className = 'player-row' + (val ? ' filled' : '');
+    row.style.animationDelay = (i * 0.03) + 's';
+    row.innerHTML = `
+      <span class="player-num">${String(i+1).padStart(2,'0')}</span>
+      <input type="text" placeholder="Prénom..." value="${val}"
+        oninput="playerInputs[${i}]=this.value.trim();
+                 this.closest('.player-row').className='player-row'+(this.value?' filled':'');
+                 checkStartBtn()">
+      ${playerInputs.length > 1 ? `<button class="del-btn" onclick="removePlayer(${i})">×</button>` : ''}
+    `;
+    list.appendChild(row);
+  });
+  checkStartBtn();
+}
+
+function removePlayer(i) {
+  playerInputs.splice(i, 1);
+  renderPlayerInputs();
+}
+
+function checkStartBtn() {
+  const ok = playerInputs.filter(n => n.trim()).length >= 1;
+  document.getElementById('startBtn').disabled = !ok;
+}
+
+/* ════════════════════════════
+   DÉMARRER
+════════════════════════════ */
+function startGame() {
+  const names = playerInputs.filter(n => n.trim());
+  if (!names.length) return;
+
+  players = names.map(name => ({
+    name,
+    points: 0,
+    drinks: { pinte: 0, shot: 0, cocktail: 0, afonnage: 0 }
+  }));
+  activePlayer = 0;
+  currentBar   = 0;
+  startTime    = Date.now();
+
+  goTo('screen-marathon');
+  timerInt = setInterval(updateTimer, 1000);
+  renderMarathon();
+}
+
+/* ════════════════════════════
+   MARATHON
+════════════════════════════ */
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderMarathon() {
+  const bar = BARS[currentBar];
+
+  // Progress
+  document.getElementById('mProgCount').innerHTML = `<em>${currentBar}</em> / ${BARS.length}`;
+  document.getElementById('mProgFill').style.width = `${(currentBar / BARS.length) * 100}%`;
+
+  // Card
+  document.getElementById('mCardNum').textContent = currentBar + 1;
+  const nameEl = document.getElementById('mBarName');
+  nameEl.textContent = bar.name;
+  nameEl.onclick = e => { e.preventDefault(); window.open(`https://maps.google.com/?q=${bar.lat},${bar.lng}`, '_blank'); };
+  const card = document.getElementById('mCard');
+  card.style.animation = 'none'; card.offsetHeight;
+  card.style.animation = 'cardIn 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+
+  renderScores();
+  renderTabs();
+  renderTimeline();
+}
+
+/* ── Classement ── */
+function renderScores() {
+  const list = document.getElementById('scoresList');
+  list.innerHTML = '';
+  const sorted = [...players]
+    .map((p, i) => ({ ...p, origIdx: i }))
+    .sort((a, b) => b.points - a.points);
+
+  sorted.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'score-row';
+    row.innerHTML = `
+      <div class="score-avatar" style="background:${COLORS[p.origIdx % COLORS.length]}">${p.name[0].toUpperCase()}</div>
+      <div class="score-name">${p.name}</div>
+      <div class="score-pts">${p.points} <small>pts</small></div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+/* ── Tabs joueurs ── */
+function renderTabs() {
+  const tabs = document.getElementById('playerTabs');
+  tabs.innerHTML = '';
+  players.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'ptab' + (i === activePlayer ? ' active' : '');
+    btn.innerHTML = `<div class="ptab-dot" style="background:${COLORS[i % COLORS.length]}"></div>${p.name}`;
+    btn.onclick = () => { activePlayer = i; renderTabs(); };
+    tabs.appendChild(btn);
+  });
+}
+
+/* ── Ajouter une conso ── */
+function addDrink(type, pts) {
+  players[activePlayer].points += pts;
+  players[activePlayer].drinks[type]++;
+  renderScores();
+  const icons = { pinte:'🍺', shot:'🥃', cocktail:'🍹', afonnage:'💀' };
+  showToast(`${players[activePlayer].name} +${pts} pts ${icons[type]}`);
+}
+
+/* ── Check-in ── */
+function checkIn() {
+  const isLast = currentBar === BARS.length - 1;
+  if (isLast) {
+    launchConfetti();
+    setTimeout(() => { clearInterval(timerInt); showPodium(); }, 500);
+    return;
+  }
+  currentBar++;
+  renderMarathon();
+
+  const emojis = ['🍻','🎉','⚡','🔥','💥','🙌','🥂','🎊'];
+  document.getElementById('celEmoji').textContent = emojis[Math.floor(Math.random() * emojis.length)];
+  const cel = document.getElementById('celNextName');
+  cel.textContent = BARS[currentBar].name;
+  cel.onclick = e => { e.preventDefault(); window.open(`https://maps.google.com/?q=${BARS[currentBar].lat},${BARS[currentBar].lng}`, '_blank'); };
+  document.getElementById('screen-cel').classList.add('active');
+}
+
+function closeCel() { document.getElementById('screen-cel').classList.remove('active'); }
+
+/* ── Timeline ── */
+function renderTimeline() {
+  const tl = document.getElementById('mTimeline');
+  const filled = document.getElementById('mTlFilled');
+  Array.from(tl.children).forEach(c => { if (c !== filled) c.remove(); });
+
+  BARS.forEach((bar, i) => {
+    const state = i < currentBar ? 'done' : i === currentBar ? 'active' : 'locked';
+    const item = document.createElement('div');
+    item.className = `m-tl-item ${state}`;
+    item.innerHTML = `
+      <div class="m-tl-dot"></div>
+      <div class="m-tl-content">
+        <div class="m-tl-num">STOP ${String(i+1).padStart(2,'0')}</div>
+        <a class="m-tl-name" href="#" style="${i > currentBar ? 'pointer-events:none' : ''}">${bar.name}</a>
+      </div>`;
+    if (i <= currentBar) {
+      item.querySelector('.m-tl-name').addEventListener('click', e => {
+        e.preventDefault(); window.open(`https://maps.google.com/?q=${bar.lat},${bar.lng}`, '_blank');
+      });
+    }
+    tl.appendChild(item);
+  });
+
+  setTimeout(() => {
+    const items = tl.querySelectorAll('.m-tl-item');
+    if (!items.length || currentBar === 0) { filled.style.height = '0px'; return; }
+    const tlRect = tl.getBoundingClientRect();
+    const dot = items[currentBar - 1].querySelector('.m-tl-dot');
+    filled.style.height = (dot.getBoundingClientRect().top - tlRect.top + 7) + 'px';
+  }, 60);
+}
+
+/* ════════════════════════════
+   PODIUM
+════════════════════════════ */
+function showPodium() {
+  launchConfetti();
+  goTo('screen-podium');
+  const medals = ['🥇','🥈','🥉'];
+  const cls    = ['gold','silver','bronze'];
+  const sorted = [...players].map((p,i) => ({...p, origIdx:i})).sort((a,b) => b.points - a.points);
+  const list   = document.getElementById('podiumList');
+  list.innerHTML = '';
+  sorted.forEach((p, rank) => {
+    const row = document.createElement('div');
+    row.className = 'podium-row' + (rank < 3 ? ` ${cls[rank]}` : '');
+    const d = p.drinks;
+    row.innerHTML = `
+      <div class="podium-rank">${rank < 3 ? medals[rank] : rank + 1}</div>
+      <div class="podium-avatar" style="background:${COLORS[p.origIdx % COLORS.length]}">${p.name[0].toUpperCase()}</div>
+      <div style="flex:1">
+        <div class="podium-name">${p.name}</div>
+        <div class="podium-drinks">${d.pinte}🍺 ${d.shot}🥃 ${d.cocktail}🍹 ${d.afonnage}💀</div>
+      </div>
+      <div class="podium-pts">${p.points}<small> pts</small></div>
+    `;
+    list.appendChild(row);
+  });
+  const elapsed = Math.floor((Date.now() - (startTime || Date.now())) / 1000);
+  document.getElementById('finTime').innerHTML = `Durée : <strong>${fmt(elapsed)}</strong>`;
+}
+
+/* ════════════════════════════
+   UTILS
+════════════════════════════ */
+function updateTimer() {
+  if (startTime) document.getElementById('mTimer').textContent = fmt(Math.floor((Date.now() - startTime) / 1000));
+}
+
+function fmt(s) {
+  const p = n => String(n).padStart(2,'0');
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+  return h > 0 ? `${p(h)}:${p(m)}:${p(sec)}` : `${p(m)}:${p(sec)}`;
+}
+
+let toastT = null;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function launchConfetti() {
+  const colors = ['#c97a06','#d94f0a','#15803d','#dc2626','#2563eb','#9333ea'];
+  for (let i=0; i<80; i++) setTimeout(() => {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `left:${Math.random()*100}vw;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2}s`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }, i * 22);
+}
+
+function restart() {
+  clearInterval(timerInt);
+  players = []; activePlayer = 0; currentBar = 0; startTime = null;
+  playerInputs = ['','',''];
+  document.getElementById('playersList').innerHTML = '';
+  renderPlayerInputs();
+  goTo('screen-setup');
+}
+</script>
+
+</body>
+</html>
